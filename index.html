@@ -281,7 +281,7 @@
         <button id="tourPause" class="btn-circle" title="Pause/Resume tour" aria-label="Pause/Resume">?</button>
         <button id="tourPrev"  class="btn-circle" title="Previous stop" aria-label="Previous">?</button>
         <button id="tourNext"  class="btn-circle" title="Next stop" aria-label="Next">?</button>
-        <button id="tourStop"  class="btn-circle" title="Stop tour" aria-label="Stop">�</button>
+        <button id="tourStop"  class="btn-circle" title="Stop tour" aria-label="Stop">Â¦</button>
       </div>
       <button id="btnMini"   class="btn-circle" title="Hide/Show minimap" aria-label="Toggle minimap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-3 6 3 6-3v14l-6 3-6-3-6 3V3z"/><path d="M9 3v14M15 6v14"/></svg></button>
       <button id="btnMirror" class="btn-circle" title="Hide/Show mirror"  aria-label="Toggle mirror"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="12" height="9" rx="2"/><rect x="9" y="4" width="12" height="9" rx="2"/></svg></button>
@@ -339,3 +339,6 @@
     </script>
   </body>
 </html>
+
+      /* Keep WebXR enter button visible and on top */
+      .xr-button, .xr-button-container button, .xr-button-overlay button, .webxr-button, .babylonVRicon { position: fixed !important; right: max(12px, env(safe-area-inset-right)); top: max(12px, env(safe-area-inset-top)); z-index: 100003; }

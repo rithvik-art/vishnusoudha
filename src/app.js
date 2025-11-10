@@ -581,8 +581,12 @@ async function startViewer() {
   const roomId = roomInput?.value?.trim() || "demo";
   gate?.remove();
   if (bottomBar) bottomBar.hidden = true;
-  // Default fullscreen for viewers (falls back to CSS fake fullscreen on iOS)
-  try { void enterFullscreenLandscape(); } catch {}
+  // Prefer native WebXR if available; otherwise, go fullscreen by default
+  try {
+    let xrSupported = false;
+    try { xrSupported = !!(navigator?.xr && await navigator.xr.isSessionSupported?.('immersive-vr')); } catch {}
+    if (!xrSupported) { void enterFullscreenLandscape(); }
+  } catch {}
   state.agentApi = null;
   const { initViewer } = await importPromise;
   await initViewer({ roomId, exp: id, experiencesMeta: state.manifest });
