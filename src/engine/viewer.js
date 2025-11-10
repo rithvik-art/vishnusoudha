@@ -108,7 +108,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
 
   /* Data */
   let data, nodesById, startNodeId;
-  try{ window.dispatchEvent(new CustomEvent('loading:show', { detail:{ label: 'Loading tour…' } })); }catch{}
+  try{ window.dispatchEvent(new CustomEvent('loading:show', { detail:{ label: 'Loading tourÃ¢â‚¬Â¦' } })); }catch{}
   ({ data, nodesById, startNodeId } = await loadWalkthrough(`${BASE}/walkthrough.json`));
   try{ window.dispatchEvent(new CustomEvent('loading:hide')); }catch{}
   let currentNodeId = startNodeId;
@@ -228,7 +228,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
   crossMat.transparencyMode = Material.MATERIAL_ALPHABLEND; crossMat.disableDepthWrite = true;
   crossDome.material = crossMat; crossDome.renderingGroupId = 1;
 
-  // Drag-to-rotate + pinch/wheel zoom for Viewer (2D) — immediate (no drift)
+  // Drag-to-rotate + pinch/wheel zoom for Viewer (2D) Ã¢â‚¬â€ immediate (no drift)
   let dragging=false, lastX=0, lastY=0;
   let yawV=0, pitchV=0;
   const yawSpeed=0.005, pitchSpeed=0.003, pitchClamp=Math.PI*0.39;
@@ -551,7 +551,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         await setVrPano(node.file);
         // CHECK: Are we still trying to load this node, or did agent move again?
         if (loadTarget !== targetNodeId) {
-          console.warn('[VIEWER] Target changed during load, skipping apply:', loadTarget, '→', targetNodeId);
+          console.warn('[VIEWER] Target changed during load, skipping apply:', loadTarget, 'Ã¢â€ â€™', targetNodeId);
           return; // Don't apply outdated panorama
         }
         dome.setEnabled(false);
@@ -563,7 +563,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         const tex = await getTexture(node.file);
         // CHECK: Are we still trying to load this node?
         if (loadTarget !== targetNodeId) {
-          console.warn('[VIEWER] Target changed during load, skipping apply:', loadTarget, '→', targetNodeId);
+          console.warn('[VIEWER] Target changed during load, skipping apply:', loadTarget, 'Ã¢â€ â€™', targetNodeId);
           return; // Don't apply outdated panorama
         }
         // CORRECT: In 2D, CROP stereo (show bottom half only for mono view)
@@ -691,14 +691,13 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
   }
 
   /* WebSocket: follow Guide (primary + fallback) */
-  // Allow opting into yaw-follow via query (?followYaw=1) or env (VITE_VIEWER_FOLLOW_YAW=1)
+  // Default: viewer controls their own look. Opt-in via ?followYaw=1 only.
   const IGNORE_GUIDE_YAW = (()=>{
     try{
       const qs = new URLSearchParams(location.search);
       const q = (qs.get('followYaw')||'').toLowerCase();
       if (q === '1' || q === 'true' || q === 'yes') return false;
-      const env = String(import.meta?.env?.VITE_VIEWER_FOLLOW_YAW ?? '0');
-      if (env === '1' || env.toLowerCase() === 'true') return false;
+      
     }catch{}
     return true;
   })();
@@ -756,10 +755,10 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
       if (msg.nodeId && nodesById.has(msg.nodeId)) {
         const prevNode = nodesById.get(currentNodeId);
         currentNodeId = msg.nodeId; const node = nodesById.get(currentNodeId);
-        // Apply position always (used by non‑XR to keep world in sync)
-        // removed: pre-position; handled by animation
+        // Apply position always (used by nonÃ¢â‚¬â€˜XR to keep world in sync)
+        if (!inXR) worldRoot.position.copyFrom(nodeWorldPos(node));
         // Do not apply guide yaw; mirror shows viewer's camera
-        // removed: pre-yaw; handled by animation
+        if (!IGNORE_GUIDE_YAW && !inXR && typeof msg.panoYaw === 'number') worldRoot.rotation.y = msg.panoYaw;
         if (inXR) {
           await setVrPano(node.file);
           await animateTravelXR(prevNode, node);
@@ -774,7 +773,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         }
       } else {
         // Ignore guide yaw entirely (viewer controls orientation)
-        // removed: pre-yaw; handled by animation
+        if (!IGNORE_GUIDE_YAW && !inXR && typeof msg.panoYaw === 'number') worldRoot.rotation.y = msg.panoYaw;
         if (!inXR && Array.isArray(msg.worldPos) && msg.worldPos.length === 3) {
           worldRoot.position.copyFrom(new Vector3(msg.worldPos[0], msg.worldPos[1], msg.worldPos[2]));
         }
@@ -795,10 +794,10 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         const q = (v, step) => Math.round(v / step) * step;
         const pose = computeViewerPose();
         // Quantize to reduce sensor noise jitter
-        pose.yaw   = q(pose.yaw,   0.005); // ~0.29°
+        pose.yaw   = q(pose.yaw,   0.005); // ~0.29Ã‚Â°
         pose.pitch = q(pose.pitch, 0.005);
         // Send only if meaningful change or periodic keepalive
-        const MIN_DELTA = 0.0087; // ~0.5°
+        const MIN_DELTA = 0.0087; // ~0.5Ã‚Â°
         const KEEPALIVE_MS = 1000;
         const changed = (aDelta(pose.yaw, lastSentYaw) >= MIN_DELTA) || (aDelta(pose.pitch, lastSentPitch) >= MIN_DELTA);
         const needKeepAlive = (now - lastSentMs) >= KEEPALIVE_MS;
@@ -826,3 +825,4 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
   addEventListener("resize", () => engine.resize());
   return {};
 }
+
