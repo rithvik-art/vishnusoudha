@@ -108,7 +108,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
 
   /* Data */
   let data, nodesById, startNodeId;
-  try{ window.dispatchEvent(new CustomEvent('loading:show', { detail:{ label: 'Loading tourÃ¢â‚¬Â¦' } })); }catch{}
+  try{ window.dispatchEvent(new CustomEvent('loading:show', { detail:{ label: 'Loading tourÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦' } })); }catch{}
   ({ data, nodesById, startNodeId } = await loadWalkthrough(`${BASE}/walkthrough.json`));
   try{ window.dispatchEvent(new CustomEvent('loading:hide')); }catch{}
   let currentNodeId = startNodeId;
@@ -228,7 +228,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
   crossMat.transparencyMode = Material.MATERIAL_ALPHABLEND; crossMat.disableDepthWrite = true;
   crossDome.material = crossMat; crossDome.renderingGroupId = 1;
 
-  // Drag-to-rotate + pinch/wheel zoom for Viewer (2D) Ã¢â‚¬â€ immediate (no drift)
+  // Drag-to-rotate + pinch/wheel zoom for Viewer (2D) ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â immediate (no drift)
   let dragging=false, lastX=0, lastY=0;
   let yawV=0, pitchV=0;
   const yawSpeed=0.005, pitchSpeed=0.003, pitchClamp=Math.PI*0.39;
@@ -551,7 +551,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         await setVrPano(node.file);
         // CHECK: Are we still trying to load this node, or did agent move again?
         if (loadTarget !== targetNodeId) {
-          console.warn('[VIEWER] Target changed during load, skipping apply:', loadTarget, 'Ã¢â€ â€™', targetNodeId);
+          console.warn('[VIEWER] Target changed during load, skipping apply:', loadTarget, 'ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢', targetNodeId);
           return; // Don't apply outdated panorama
         }
         dome.setEnabled(false);
@@ -563,7 +563,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         const tex = await getTexture(node.file);
         // CHECK: Are we still trying to load this node?
         if (loadTarget !== targetNodeId) {
-          console.warn('[VIEWER] Target changed during load, skipping apply:', loadTarget, 'Ã¢â€ â€™', targetNodeId);
+          console.warn('[VIEWER] Target changed during load, skipping apply:', loadTarget, 'ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢', targetNodeId);
           return; // Don't apply outdated panorama
         }
         // CORRECT: In 2D, CROP stereo (show bottom half only for mono view)
@@ -755,9 +755,7 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
       if (msg.nodeId && nodesById.has(msg.nodeId)) {
         const prevNode = nodesById.get(currentNodeId);
         currentNodeId = msg.nodeId; const node = nodesById.get(currentNodeId);
-        // Apply position always (used by nonÃ¢â‚¬â€˜XR to keep world in sync)
-        if (!inXR) worldRoot.position.copyFrom(nodeWorldPos(node));
-        // Do not apply guide yaw; mirror shows viewer's camera
+        // Apply position always (used by nonÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¹Ã…â€œXR to keep world in sync)
         if (!IGNORE_GUIDE_YAW && !inXR && typeof msg.panoYaw === 'number') worldRoot.rotation.y = msg.panoYaw;
         if (inXR) {
           await setVrPano(node.file);
@@ -794,10 +792,10 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         const q = (v, step) => Math.round(v / step) * step;
         const pose = computeViewerPose();
         // Quantize to reduce sensor noise jitter
-        pose.yaw   = q(pose.yaw,   0.005); // ~0.29Ã‚Â°
+        pose.yaw   = q(pose.yaw,   0.005); // ~0.29ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â°
         pose.pitch = q(pose.pitch, 0.005);
         // Send only if meaningful change or periodic keepalive
-        const MIN_DELTA = 0.0087; // ~0.5Ã‚Â°
+        const MIN_DELTA = 0.0087; // ~0.5ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â°
         const KEEPALIVE_MS = 1000;
         const changed = (aDelta(pose.yaw, lastSentYaw) >= MIN_DELTA) || (aDelta(pose.pitch, lastSentPitch) >= MIN_DELTA);
         const needKeepAlive = (now - lastSentMs) >= KEEPALIVE_MS;
