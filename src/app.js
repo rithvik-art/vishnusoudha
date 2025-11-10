@@ -590,6 +590,14 @@ async function startViewer() {
   state.agentApi = null;
   const { initViewer } = await importPromise;
   await initViewer({ roomId, exp: id, experiencesMeta: state.manifest });
+  // If fullscreen was blocked (no user gesture), enter on first user input
+  try {
+    const onceFS = (ev) => { try{ requestFullscreenFromGesture(); }catch{} try{ document.removeEventListener('pointerdown', onceFS, true); document.removeEventListener('keydown', onceFS, true);}catch{} };
+    if (!isFullscreenActive()){
+      document.addEventListener('pointerdown', onceFS, true);
+      document.addEventListener('keydown', onceFS, true);
+    }
+  } catch {}
   dispatchEvent(new CustomEvent('loading:hide'));
 }
 
