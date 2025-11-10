@@ -1,0 +1,46 @@
+{
+    "name":  "vishnu-soudha",
+    "version":  "1.0.0",
+    "description":  "Vishnu Soudha VR tour (Netlify-ready, Vite + Babylon.js)",
+    "main":  "agent.js",
+    "scripts":  {
+                    "test":  "echo \"Error: no test specified\" \u0026\u0026 exit 1",
+                    "dev":  "vite",
+                    "dev:http":  "set DEV_HTTPS=0\u0026\u0026 vite",
+                    "build":  "vite build",
+                    "preview":  "vite preview --port 4173",
+                    "serve:dist":  "http-server dist -p 4173 -s",
+                    "test:setup":  "playwright install chromium webkit",
+                    "test:soak":  "npm run build \u0026\u0026 playwright test --reporter=list",
+                    "test:soak:fast":  "playwright test --reporter=list",
+                    "generate:manifest":  "node ./scripts/generate-experience-manifest.mjs",
+                    "predev":  "npm run generate:manifest",
+                    "prebuild":  " npm run generate:manifest \u0026\u0026 npm run make:fallbacks",
+                    "prepreview":  "npm run generate:manifest",
+                    "make:fallbacks":  "node ./scripts/make-jpeg-fallbacks.mjs",
+                    "make:mobile":  "node ./scripts/make-mobile-panos.mjs"
+                },
+    "keywords":  [
+
+                 ],
+    "author":  "",
+    "license":  "ISC",
+    "type":  "module",
+    "devDependencies":  {
+                            "@vitejs/plugin-basic-ssl":  "^2.1.0",
+                            "@vitejs/plugin-legacy":  "^7.2.1",
+                            "@playwright/test":  "^1.48.2",
+                            "http-server":  "^14.1.1",
+                            "rollup":  "^4.52.5",
+                            "sharp":  "^0.33.5",
+                            "vite":  "^7.1.4"
+                        },
+    "dependencies":  {
+                         "@babylonjs/core":  "^8.26.0",
+                         "@babylonjs/loaders":  "^8.26.0"
+                     },
+    "overrides":  {
+                      "semver":  "7.5.4"
+                  },
+    "private":  "true"
+}

@@ -1,0 +1,29 @@
+{
+  "experiences": [
+    {
+      "id": "clubhouse",
+      "label": "Clubhouse",
+      "stereo": true
+    },
+    {
+      "id": "eastvilla",
+      "label": "East Villa",
+      "stereo": true
+    },
+    {
+      "id": "layoutwalkthrough",
+      "label": "Layout Walkthrough",
+      "stereo": false
+    },
+    {
+      "id": "skywalk",
+      "label": "Skywalk",
+      "stereo": false
+    },
+    {
+      "id": "westvilla",
+      "label": "West Villa",
+      "stereo": true
+    }
+  ]
+}
