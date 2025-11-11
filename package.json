@@ -3,8 +3,8 @@
     "version":  "1.0.0",
     "description":  "Vishnu Soudha VR tour (Netlify-ready, Vite + Babylon.js)",
     "main":  "agent.js",
-    "scripts":  {
-                    "test":  "echo \"Error: no test specified\" \u0026\u0026 exit 1",
+  "scripts":  {
+                    "test":  "echo \"Use npm run test:e2e (Netlify URL) or npm run test:soak (local build)\"",
                     "dev":  "vite",
                     "dev:http":  "set DEV_HTTPS=0\u0026\u0026 vite",
                     "build":  "vite build",
@@ -13,6 +13,9 @@
                     "test:setup":  "playwright install chromium webkit",
                     "test:soak":  "npm run build \u0026\u0026 playwright test --reporter=list",
                     "test:soak:fast":  "playwright test --reporter=list",
+                    "test:e2e":  "playwright test --reporter=list",
+                    "test:e2e:webkit":  "playwright test --project=webkit-iphone-12 --project=webkit-iphone-14-pro --project=webkit-ipad --reporter=list",
+                    "test:e2e:chromium":  "playwright test --project=chromium-pixel-7 --project=chromium-galaxy-s9 --reporter=list",
                     "generate:manifest":  "node ./scripts/generate-experience-manifest.mjs",
                     "predev":  "npm run generate:manifest",
                     "prebuild":  " npm run generate:manifest \u0026\u0026 npm run make:fallbacks",

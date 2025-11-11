@@ -66,6 +66,11 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
     stencil: false
   });
   try {
+    // Help Babylon recover cleanly from GPU context loss
+    canvas?.addEventListener?.('webglcontextlost', (e)=>{ try{ e.preventDefault(); }catch{} }, false);
+    canvas?.addEventListener?.('webglcontextrestored', ()=>{ try{ engine.resize(); refreshDomeForCurrentNode(); }catch{} }, false);
+  } catch { }
+  try {
     // Force HQ on request; otherwise cap to 2x for perf
     function determineDpr(){
       const qs = new URLSearchParams(location.search);
@@ -387,9 +392,22 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
   }
 
   // Release GPU memory when tab is hidden/backgrounded (mobile stability)
+  const PURGE_ON_HIDE = (String(import.meta?.env?.VITE_PURGE_ON_HIDE ?? '1') === '1');
+  // And proactively restore the current panorama when returning to the tab
   try{
-    document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState !== 'visible') purgeTextures(); });
-    addEventListener('pagehide', ()=>purgeTextures());
+    document.addEventListener('visibilitychange', ()=>{
+      try{
+        if (document.visibilityState !== 'visible') {
+          if (PURGE_ON_HIDE) purgeTextures();
+        } else {
+          // Tab became visible again: ensure textures are reloaded
+          try { engine.resize(); } catch {}
+          try { refreshDomeForCurrentNode(); } catch {}
+        }
+      }catch{}
+    });
+    addEventListener('pagehide', ()=>{ try{ if (PURGE_ON_HIDE) purgeTextures(); }catch{} });
+    addEventListener('pageshow', ()=>{ try{ engine.resize(); refreshDomeForCurrentNode(); }catch{} });
   }catch{}
 
   // Apply initial orientation
@@ -498,18 +516,16 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
       const baseMs = NAV_DUR_MS + 420;
       const travelFactor = Math.max(1, (distance + 0.5) / Math.max(0.4, NAV_PUSH_M*0.5));
       const travelMs = Math.max(2400, Math.min(4800, baseMs * travelFactor * 2));
+      // Keep current yaw in XR to avoid nausea; forward-only translation
       const startYaw = worldYaw;
-      const travelYaw = distance > 1e-4 ? Math.atan2(-delta.x, -delta.z) : startYaw;
-      const nodeYaw = Number.isFinite(nextNode?.yaw) ? -((Math.PI/180)*nextNode.yaw) : travelYaw;
-      const targetYaw = lerpAngle(travelYaw, nodeYaw, 0.35);
       const t0 = performance.now();
       const obs = scene.onBeforeRenderObservable.add(()=>{
         const t = Math.min(1, (performance.now() - t0) / travelMs);
         const eased = easeInOutSine(t);
         const pos = cubicBezier(startPos, ctrl1, ctrl2, targetPos, eased);
         worldRoot.position.copyFrom(pos);
-        const yawNow = lerpAngle(startYaw, targetYaw, eased);
-        worldYaw = yawNow; worldRoot.rotation.y = worldYaw;
+        // Do not auto-rotate in XR; preserve current yaw throughout travel
+        worldYaw = startYaw; worldRoot.rotation.y = worldYaw;
         if (t >= 1){ try{ scene.onBeforeRenderObservable.remove(obs); }catch{} navAnimating = false; }
       });
       await new Promise(res=>setTimeout(res, Math.ceil(travelMs)));
@@ -587,6 +603,13 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         urls.push(...neigh.urls);
         retainOnly(keep);
         retainSW(urls);
+        // Prewarm VR dome with current pano so entering XR has no black frame
+        try {
+          if (!inXR) {
+            const d = ensureVrDome(activeVr);
+            await loadUrlIntoDome(d, panoUrl(node.file));
+          }
+        } catch {}
       }
     } catch (error) {
       console.error('[VIEWER] Failed to load panorama:', error);
@@ -660,8 +683,18 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
         // Show the active VR dome only
         try {
           vrDomes.forEach(d => { if (d?.mesh) { d.mesh.isVisible = false; d.mesh.setEnabled(false); } });
-          ensureVrDome(activeVr).mesh.isVisible = true;
-          try { ensureVrDome(activeVr).mesh.setEnabled(true); } catch {}
+          // Avoid black screen on XR entry: load current pano into VR dome before showing it
+          (async () => {
+            try {
+              const node = nodesById.get(currentNodeId);
+              if (node) {
+                const dome = ensureVrDome(activeVr);
+                await loadUrlIntoDome(dome, panoUrl(node.file));
+                dome.mesh.isVisible = true;
+                try { dome.mesh.setEnabled(true); } catch {}
+              }
+            } catch {}
+          })();
         } catch {}
       } else if (prevHSL != null) {
         try { document.body.removeAttribute('data-xr'); } catch {}
@@ -823,4 +856,5 @@ export async function initViewer({ roomId = "demo", exp, experienceId, experienc
   addEventListener("resize", () => engine.resize());
   return {};
 }
+
 
