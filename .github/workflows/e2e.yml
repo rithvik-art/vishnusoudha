@@ -26,11 +26,11 @@ jobs:
 
       - name: Install Playwright browsers (Chromium + WebKit)
         run: |
-          npx -y @playwright/test@1.48.2 install chromium webkit
+          npx playwright install --with-deps chromium webkit
 
       - name: Run E2E tests (webkit + chromium)
         run: |
-          npx -y @playwright/test@1.48.2 test --project=webkit-iphone-12 --project=chromium-pixel-7 --reporter=list --workers=2
+          npx playwright test --project=webkit-iphone-12 --project=chromium-pixel-7 --reporter=list --workers=2
 
       - name: Upload Playwright report
         if: always()
@@ -39,4 +39,5 @@ jobs:
           name: playwright-report
           path: playwright-report
           if-no-files-found: ignore
+
 

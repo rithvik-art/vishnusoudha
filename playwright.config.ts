@@ -9,7 +9,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  reporter: [['list']],
+  reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
     baseURL: BASE_URL,
     actionTimeout: 15_000,
@@ -29,4 +29,5 @@ export default defineConfig({
     { name: 'chromium-galaxy-s9', use: { ...devices['Galaxy S9+'] } },
   ],
 });
+
 
