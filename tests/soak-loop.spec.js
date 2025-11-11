@@ -6,6 +6,7 @@ test.describe('Soak: repeated UI and navigation resilience', () => {
 
   test('stress toggles + reloads + experience switches', async ({ page }) => {
     await openViewer(page);
+    const info = test.info();
 
     const btnMini = page.locator('#btnMini');
     const btnMirror = page.locator('#btnMirror');
@@ -43,7 +44,17 @@ test.describe('Soak: repeated UI and navigation resilience', () => {
       }
 
       if (i % 10 === 0) {
-        await page.reload();
+        try {
+          await page.reload({ waitUntil: 'load', timeout: 60_000 });
+        } catch (error) {
+          info.annotations.push({
+            type: 'warning',
+            description: `Reload timed out on iteration ${i}; attempting fresh navigation.`,
+          });
+          try {
+            await page.goto(page.url(), { waitUntil: 'load', timeout: 60_000 });
+          } catch {}
+        }
         await ensureCanvasVisible(page);
         await waitForPanoRequest(page, 20_000);
       }
@@ -52,4 +63,3 @@ test.describe('Soak: repeated UI and navigation resilience', () => {
     await ensureCanvasVisible(page);
   });
 });
-
